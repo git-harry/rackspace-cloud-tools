@@ -1,0 +1,33 @@
+#! /bin/bash
+### BEGIN INIT INFO
+# Provides:          cs_bandwidth_tracker
+# Required-Start:    $network
+# Required-Stop:
+# X-Stop-After:      $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Network stats capture script
+### END INIT INFO
+#
+# chkconfig: 2345 98 98 
+# description: Network stats capture script
+if [ "$1" == 'start' ]
+    then
+        #remove comments 
+        if [ -f '/etc/cron.d/cs_bandwidth_tracker.disabled' ]
+            then
+                awk 'sub('/^#/',"",$0) {print $0}' /etc/cron.d/cs_bandwidth_tracker.disabled > /etc/cron.d/cs_bandwidth_tracker
+        fi
+    echo 'Cron job enabled. The task should run as long as the billing date is set in /etc/cs_bandwidth_tracker.conf'
+        python /usr/local/src/cs_bandwidth_tracker.py
+elif [ "$1" == 'stop' ]
+    then
+        #add comments
+        if [ -f '/etc/cron.d/cs_bandwidth_tracker' ]
+            then
+                awk 'sub('/^#/',"",$0) {print $0}' /etc/cron.d/cs_bandwidth_tracker > /etc/cron.d/cs_bandwidth_tracker.disabled
+        fi
+    echo 'Cron job disabled.'
+else
+        python /usr/local/src/cs_bandwidth_tracker.py
+fi

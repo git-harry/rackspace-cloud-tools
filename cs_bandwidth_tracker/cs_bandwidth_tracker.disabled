@@ -1,0 +1,3 @@
+## record bandwidth every ten minutes and take actions as defined in config.
+#
+#*/10 * * * * root /etc/init.d/cs_bandwidth_tracker

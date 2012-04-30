@@ -1,0 +1,13 @@
+#! /bin/bash
+echo 'Copying file(s)...'
+cp -v cs_bandwidth_tracker.disabled /etc/cron.d/cs_bandwidth_tracker.disabled
+cp -v cs_bandwidth_tracker.conf /etc/cs_bandwidth_tracker.conf
+cp -v cs_bandwidth_tracker.py /usr/local/src/cs_bandwidth_tracker.py
+cp -v cs_bandwidth_tracker /etc/init.d/cs_bandwidth_tracker
+chmod -v u+x /etc/init.d/cs_bandwidth_tracker
+if command -v update-rc.d > /dev/null
+        then update-rc.d cs_bandwidth_tracker defaults
+elif command -v chkconfig > /dev/null 
+        then chkconfig cs_bandwidth_tracker on
+else echo 'Unable to remove init script links.'
+fi

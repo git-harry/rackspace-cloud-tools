@@ -1,0 +1,18 @@
+#! /bin/bash
+
+echo 'Deleting file(s)...'
+rm -v /etc/cron.d/cs_bandwidth_tracker
+rm -v /etc/cron.d/cs_bandwidth_tracker.disabled
+rm -v /etc/cs_bandwidth_tracker.conf
+rm -v /usr/local/src/cs_bandwidth_tracker.py
+if command -v update-rc.d > /dev/null
+	then 
+		rm -v /etc/init.d/cs_bandwidth_tracker
+		update-rc.d cs_bandwidth_tracker remove
+elif command -v chkconfig > /dev/null
+	then
+		chkconfig cs_bandwidth_tracker off 
+		rm -v /etc/init.d/cs_bandwidth_tracker
+else echo 'Unable to remove init script links.'
+fi
+
