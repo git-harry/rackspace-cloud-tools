@@ -1,8 +1,8 @@
 ticket_manager
 This tool is designed to provide an alternative method for creating tickets.
 It is designed to work with:
-lon.manage.rackspacecloud.com (US)
-manage.rackspacecloud.com (UK)
+lon.manage.rackspacecloud.com (UK)
+manage.rackspacecloud.com (US)
 
 
 #start a ticket session
