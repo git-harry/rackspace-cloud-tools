@@ -98,8 +98,7 @@ def load_config(conf_file):
     return params
 
 
-def send_email(msg_txt, params):
-    e = params['email']
+def send_email(msg_txt, e):
     msg = MIMEText(msg_txt)
     msg['Subject'] = 'Scheduled image alert'
     msg['From'] = e['sender']
@@ -119,11 +118,6 @@ if __name__ == '__main__':
         #shed_type should be daily or weekly
         shed_type = sys.argv[1]
         conf_file = sys.argv[2]
-        try:
-            if sys.argv[3] == 'no_email':
-                email = False
-        except IndexError:
-            email = True
         params = load_config(conf_file)
         username = params['cs']['username']
         api_key = params['cs']['api_key']
@@ -132,7 +126,12 @@ if __name__ == '__main__':
                                           api_key,
                                           project_id=0,
                                           auth_url=regions[region])
-        img_reqs = get_schedule(params['servers']['list'])
+        try:
+            servers_list_filename = params['servers']['list']
+        except KeyError:
+            raise Exception('servers_list parameter missing from conf file.')
+        else:
+            img_reqs = get_schedule(servers_list_filename)
         img_reqs = start_imaging(img_reqs, shed_type)
 
         start_time = datetime.datetime.utcnow()
@@ -161,7 +160,7 @@ if __name__ == '__main__':
                 line = line_temp.format(**img)
             alert_lines.append(line)
         time_now = datetime.datetime.utcnow()
-        l0 = ''.join((time_now.strftime('%Y-%m-%d %H:%M:%S'), 'UTC'))
+        l0 = ' '.join((time_now.strftime('%Y-%m-%d %H:%M:%S'), 'UTC'))
         l1 = '****Failed****'
         l2 = '\n'.join(alert_lines) or 'None'
         l3 = '****Active****'
@@ -173,13 +172,25 @@ if __name__ == '__main__':
                                     img['current'].status)))
         l4 = '\n'.join(c)
         txt = '\n'.join((l0, l1, l2, l3, l4, '\n'))
-        if params['log']['filename']:
-            with open(params['log']['filename'], 'a') as f:
+        try:
+            log_file_name = params['log']['filename']
+        except KeyError:
+            pass
+        else:
+            with open(log_file_name, 'a') as f:
                 f.write(txt)
-        if email:
-            send_email(txt, params)
+        try:
+            em = params['email']
+        except KeyError:
+            pass
+        else:
+            send_email(txt, em)
     except Exception as e:
-        if params['log']['filename']:
-            with open(params['log']['filename'], 'a') as f:
+        try:
+            log_file_name = params['log']['filename']
+        except KeyError:
+            raise e
+        else:
+            with open(log_file_name, 'a') as f:
                 f.write('********Program Failure********\n')
                 traceback.print_exc(file=f)
